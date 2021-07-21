@@ -1,8 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- ./helmrelease.yaml
-- ./rbac.yaml
-- snapshot-controller
+- rbac.yaml
+- helm-release.yaml
 - storage
-- servicemonitor
+- rook-direct-mount
+- service-monitors
+- snapshot-controller
+- dashboard

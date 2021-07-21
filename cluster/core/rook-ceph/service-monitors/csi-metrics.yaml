@@ -3,17 +3,16 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: csi-metrics
-  namespace: system-rook-ceph
+  namespace: rook-ceph
   labels:
     team: rook
 spec:
   namespaceSelector:
     matchNames:
-    - system-rook-ceph
+    - rook-ceph
   selector:
     matchLabels:
-      app: rook-ceph-mgr
-      rook_cluster: system-rook-ceph
+      app: csi-metrics
   endpoints:
   - port: csi-http-metrics
     path: /metrics
