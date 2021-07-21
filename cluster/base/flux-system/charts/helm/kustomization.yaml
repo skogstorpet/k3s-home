@@ -5,5 +5,7 @@ resources:
 - ingress-nginx-charts.yaml
 - jetstack-charts.yaml
 - k8s-at-home-charts.yaml
+- kasten-charts.yaml
 - metallb-charts.yaml
+- prometheus-community-charts.yaml
 - rook-ceph-charts.yaml
