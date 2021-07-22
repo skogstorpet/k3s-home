@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
 - cert-manager.yaml
 - flux-system.yaml
-- home-automation
+- home-automation.yaml
 - kube-system.yaml
 - metallb-system.yaml
 - monitoring.yaml

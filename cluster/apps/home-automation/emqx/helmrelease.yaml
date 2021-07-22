@@ -3,7 +3,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: emqx
-  namespace: default
+  namespace: home-automation
 spec:
   interval: 5m
   chart:
@@ -20,7 +20,8 @@ spec:
     replicaCount: 3
     recreatePods: true
     service:
-      type: clusterIP
+      type: LoadBalancer
+      loadBalancerIP: 10.10.10.211
     tolerations:
       - key: "arm"
         operator: "Exists"
