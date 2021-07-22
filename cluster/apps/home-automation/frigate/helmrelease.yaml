@@ -55,20 +55,19 @@ spec:
     ingress:
       main:
         enabled: true
-        ingressClassName: "traefik"
+        ingressClassName: "nginx"
         annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-production
-          external-dns.alpha.kubernetes.io/target: ingress.${DOMAIN_1}
-          traefik.ingress.kubernetes.io/router.entrypoints: websecure
-          traefik.ingress.kubernetes.io/router.middlewares: system-ingress-rfc1918-ips@kubernetescrd
+          #cert-manager.io/cluster-issuer: letsencrypt-production
+          #external-dns.alpha.kubernetes.io/target: ingress.${DOMAIN_1}
+          #traefik.ingress.kubernetes.io/router.entrypoints: websecure
+          #traefik.ingress.kubernetes.io/router.middlewares: system-ingress-rfc1918-ips@kubernetescrd
         hosts:
-        - host: frigate.${DOMAIN_1}
+        - host: frigate.${SECRET_DOMAIN}
           paths:
           - path: /
         tls:
-        - secretName: tls.frigate
-          hosts:
-          - "{{ (index .Values.ingress.main.hosts 0).host }}"
+        - hosts:
+          - "frigate.${SECRET_DOMAIN}"
 
     securityContext:
       privileged: true
