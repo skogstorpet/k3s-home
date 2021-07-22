@@ -3,7 +3,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: emqx
-  namespace: home-automation
+  namespace: home
 spec:
   interval: 5m
   chart:
@@ -22,23 +22,26 @@ spec:
     service:
       type: LoadBalancer
       loadBalancerIP: 10.10.10.211
-    tolerations:
-      - key: "arm"
-        operator: "Exists"
-    affinity:
-      podAntiAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
-            - key: app.kubernetes.io/name
-              operator: In
-              values:
-              - emqx
-          topologyKey: "kubernetes.io/hostname"
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: "mqtt.${SECRET_DOMAIN}"
+        coredns.io/hostname: "mqtt.${SECRET_DOMAIN}"
+    ingress:
+      dashboard:
+        enabled: true
+        annotations:
+     #     traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+        path: /
+        hosts:
+        - emqx.${SECRET_DOMAIN}
+        tls:
+        - hosts:
+          - emqx.${SECRET_DOMAIN}
     emqxConfig:
       EMQX_ALLOW_ANONYMOUS: "false"
-    #   EMQX_ACL_NOMATCH: "deny"
-
+      EMQX_ADMIN_PASSWORD: "${SECRET_EMQX_ADMIN_PASSWORD}"
+      EMQX_AUTH__MNESIA__PASSWORD_HASH: plain
+      EMQX_AUTH__USER__1__USERNAME: "${SECRET_MQTT_USERNAME}"
+      EMQX_AUTH__USER__1__PASSWORD: "${SECRET_MQTT_PASSWORD}"
     emqxAclConfig: >
       {allow, {user, "dashboard"}, subscribe, ["$SYS/#"]}.
       {allow, {ipaddr, "127.0.0.1"}, pubsub, ["$SYS/#", "#"]}.
@@ -60,28 +63,44 @@ spec:
       {emqx_mod_rewrite, false}.
       {emqx_mod_subscription, false}.
       {emqx_mod_topic_metrics, true}.
+    nodeSelector:
+      node-role.kubernetes.io/worker: "true"
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                - emqx
+            topologyKey: kubernetes.io/hostname
     resources:
-      limits:
-        memory: 256Mi
       requests:
         cpu: 100m
         memory: 150Mi
-
-    ingress:
-      dashboard:
-        enabled: true
-        annotations:
-          kubernetes.io/ingress.class: nginx
-          nginx.ingress.kubernetes.io/whitelist-source-range: "10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16"
-          #nginx.ingress.kubernetes.io/auth-url: "https://auth.eviljungle.com/oauth2/auth"
-          #nginx.ingress.kubernetes.io/auth-signin: https://auth.eviljungle.com/oauth2/start
-        path: /
-        hosts:
-        - emqx.cluster.stromberg.internal
-        tls:
-        - hosts:
-          - emqx.cluster.stromberg.internal
-  valuesFrom:
-  - kind: Secret
-    name: "emqx-auth"
-    optional: false
+      limits:
+        memory: 512Mi
+  # TODO https://github.com/emqx/emqx/pull/5201
+#  postRenderers:
+#  - kustomize:
+#      patchesJson6902:
+#      - target:
+#          kind: Ingress
+#          name: emqx-dashboard
+#        patch:
+#        - op: add
+#          path: /spec/ingressClassName
+#          value: nginx
+#      - target:
+#          kind: Service
+#          name: emqx
+#        patch:
+#        - op: remove
+#          path: /spec/loadBalancerIP
+#        - op: add
+#          path: /spec/externalIPs
+#          value:
+#          - "${SVC_EMQX_ADDRESS}"
