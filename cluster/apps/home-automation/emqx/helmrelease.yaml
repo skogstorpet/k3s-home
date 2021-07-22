@@ -65,16 +65,6 @@ spec:
       {emqx_mod_topic_metrics, true}.
     nodeSelector:
       node-role.kubernetes.io/worker: "true"
-    affinity:
-      podAntiAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
-            - key: app.kubernetes.io/name
-              operator: In
-              values:
-              - emqx
-          topologyKey: "kubernetes.io/hostname"
     resources:
       requests:
         cpu: 100m
