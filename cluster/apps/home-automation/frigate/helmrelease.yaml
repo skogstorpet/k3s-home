@@ -1,0 +1,171 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: frigate
+  namespace: home-automation
+spec:
+  dependsOn:
+  - name: emqx
+    namespace: home-automation
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://k8s-at-home.com/charts/
+      chart: frigate
+      version: 5.0.0
+      sourceRef:
+        kind: HelmRepository
+        name: k8s-at-home-charts
+        namespace: flux-system
+      interval: 5m
+  values:
+    image:
+      repository: blakeblackshear/frigate
+      tag: 0.8.4-amd64
+
+    podAnnotations:
+      configmap.reloader.stakater.com/reload: "frigate-config"
+
+    env:
+      TZ: Europe/Stockholm
+
+    persistence:
+      data:
+        enabled: true
+        mountPath: /data
+        storageClass: "rook-ceph-block"
+        accessMode: ReadWriteOnce
+        size: "5Gi"
+      media:
+        enabled: true
+        storageClass: "rook-ceph-block"
+        mountPath: /media
+      usb:
+        enabled: true
+        type: hostPath
+        hostPath: /dev/bus/usb
+      cache:
+        enabled: true
+        type: emptyDir
+        medium: Memory
+        sizeLimit: 512Mi
+        mountPath: /dev/shm
+
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: "traefik"
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          external-dns.alpha.kubernetes.io/target: ingress.${DOMAIN_1}
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+          traefik.ingress.kubernetes.io/router.middlewares: system-ingress-rfc1918-ips@kubernetescrd
+        hosts:
+        - host: frigate.${DOMAIN_1}
+          paths:
+          - path: /
+        tls:
+        - secretName: tls.frigate
+          hosts:
+          - "{{ (index .Values.ingress.main.hosts 0).host }}"
+
+    securityContext:
+      privileged: true
+
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: feature.node.kubernetes.io/custom-coral-tpu
+              operator: In
+              values:
+              - "true"
+            - key: feature.node.kubernetes.io/custom-intel-gpu
+              operator: In
+              values:
+              - "true"
+
+    config: |
+      mqtt:
+        host: emqx.home-automation
+        port: 1883
+        topic_prefix: frigate
+        user: ${FRIGATE_MQTT_USER}
+        password: ${FRIGATE_MQTT_PASSWORD}
+
+      database:
+        path: /data/frigate.db
+
+      detectors:
+        coral:
+          type: edgetpu
+          device: usb
+
+      objects:
+        track:
+          - person
+        filters:
+          person:
+            min_area: 5000
+            max_area: 100000
+            threshold: 0.5
+
+      ffmpeg:
+        hwaccel_args:
+          - -hwaccel
+          - vaapi
+          - -hwaccel_device
+          - /dev/dri/renderD128
+          - -hwaccel_output_format
+          - yuv420p
+
+      cameras:
+        doorbell:
+          ffmpeg:
+            inputs:
+              - path: ${FRIGATE_CAMERA_DOORBELL_MAIN}
+                roles:
+                  - clips
+                  - rtmp
+              - path: ${FRIGATE_CAMERA_DOORBELL_SUBSTREAM}
+                roles:
+                  - detect
+
+          # Required: width of the frame for the input with the detect role
+          width: 720
+          # Required: height of the frame for the input with the detect role
+          height: 576
+          fps: 15
+
+          clips:
+            enabled: True
+            objects:
+              - person
+            retain:
+              # Required: Default retention days (default: shown below)
+              default: 14
+
+          snapshots:
+            enabled: True
+            timestamp: True
+            retain:
+              # Required: Default retention days (default: shown below)
+              default: 14
+
+          rtmp:
+            enabled: True
+
+          objects:
+            track:
+              - person
+
+    resources:
+      requests:
+        memory: 300Mi
+        cpu: 400m
+        gpu.intel.com/i915: 1
+      limits:
+        gpu.intel.com/i915: 1
+        memory: 1000Mi
