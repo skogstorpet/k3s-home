@@ -33,7 +33,7 @@ spec:
           #nginx.ingress.kubernetes.io/auth-url: "https://auth.eviljungle.com/oauth2/auth"
           #nginx.ingress.kubernetes.io/auth-signin: https://auth.eviljungle.com/oauth2/start
         hosts:
-        - host: node-red.stromberg.internal
+        - host: node-red.cluster.stromberg.internal
           paths:
           - path: /
             pathType: Prefix
