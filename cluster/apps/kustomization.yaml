@@ -4,5 +4,6 @@ resources:
 - default
 - home-automation
 - networking
+- kasten-io
 - rook-ceph
 - system-upgrade
