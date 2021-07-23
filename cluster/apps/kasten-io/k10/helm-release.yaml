@@ -44,5 +44,5 @@ spec:
       hosts:
         - "k10.${SECRET_DOMAIN}"
       tls:
-        enabled: fasle
+        enabled: false
         secretName: "${SECRET_CLUSTER_DOMAIN_CERT}-tls"
