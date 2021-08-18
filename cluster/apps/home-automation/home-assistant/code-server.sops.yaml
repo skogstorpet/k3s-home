@@ -6,4 +6,7 @@ metadata:
     name: code-server
     namespace: home-automation
 stringData:
-    id_rsa: 
+    id_rsa: -----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
+
+-----END OPENSSH PRIVATE KEY-----
