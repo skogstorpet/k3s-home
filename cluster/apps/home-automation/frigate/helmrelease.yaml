@@ -62,8 +62,7 @@ spec:
           #traefik.ingress.kubernetes.io/router.middlewares: system-ingress-rfc1918-ips@kubernetescrd
       hosts:
       - frigate.${SECRET_DOMAIN}
-        paths:
-        - path: /
+      path: /
       tls:
       - hosts:
         - "frigate.${SECRET_DOMAIN}"
