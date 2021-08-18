@@ -53,7 +53,7 @@ spec:
       value: "1.2"
 
     # Fully qualified name to reach your Rancher server
-    hostname: "rancher.${SECRET_DOMAIN}"
+    hostname: rancher.cluster.stromberg.internal
     ### ingress ###
     # Readme for details and instruction on adding tls secrets.
     ingress:
@@ -116,3 +116,4 @@ spec:
       storageClass: "nfs-client"
       accessMode: ReadWriteOnce
       size: 1Gi
+
