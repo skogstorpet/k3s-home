@@ -4,6 +4,7 @@ resources:
 - cattle-system
 - default
 - home-automation
+- monitoring
 - networking
 - kasten-io
 - rook-ceph
