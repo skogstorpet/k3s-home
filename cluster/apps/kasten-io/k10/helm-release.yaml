@@ -37,7 +37,7 @@ spec:
     ingress:
       create: true
       class: "nginx"
-      host: "k10.${SECRET__DOMAIN}"
+      host: "k10.${SECRET_DOMAIN}"
       annotations:
       #  nginx.ingress.kubernetes.io/app-root: /k10
       urlPath: k10
