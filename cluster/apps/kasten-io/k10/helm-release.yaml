@@ -39,7 +39,7 @@ spec:
       class: "nginx"
       host: "k10.${SECRET__DOMAIN}"
       annotations:
-        nginx.ingress.kubernetes.io/app-root: /k10
+      #  nginx.ingress.kubernetes.io/app-root: /k10
       urlPath: k10
       hosts:
         - "k10.${SECRET_DOMAIN}"
