@@ -34,7 +34,6 @@ spec:
         annotations:
           #traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
         tls: true
-    #existingObjstoreSecret: thanos-objstore
     queryFrontend:
       enabled: false
     bucketweb:
