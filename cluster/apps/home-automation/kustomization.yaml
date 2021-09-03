@@ -5,4 +5,4 @@ resources:
 #- frigate
 - node-red
 - home-assistant
-
+- openhab
