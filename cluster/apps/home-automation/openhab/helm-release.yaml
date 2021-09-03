@@ -28,9 +28,8 @@ spec:
     hostNetwork: true
     dnsPolicy: ClusterFirstWithHostNet
     service:
-      main:
-        type: LoadBalancer
-        externalTrafficPolicy: Local
+      type: LoadBalancer
+      externalTrafficPolicy: Local
     ingress:
       enabled: true
       annotations:
@@ -38,13 +37,13 @@ spec:
         #nginx.ingress.kubernetes.io/auth-url: "https://auth.eviljungle.com/oauth2/auth"
         #nginx.ingress.kubernetes.io/auth-signin: https://auth.eviljungle.com/oauth2/start
       hosts:
-      - host: openhab.cluster.stromberg.internal
-        paths:
-        - path: /
-          pathType: Prefix
+        - host: openhab.cluster.stromberg.internal
+          paths:
+            - path: /
+              pathType: Prefix
       tls:
-      - hosts:
-        - "openhab.cluster.stromberg.internal"
+        - hosts:
+          - "openhab.cluster.stromberg.internal"
     
     probes:
       liveness:
@@ -56,35 +55,7 @@ spec:
     persistence:
       enabled: true
       existingClaim: openhab-config-v1
-    addons:
-      codeserver:
-        enabled: false
-        image:
-          repository: ghcr.io/k8s-at-home/code-server
-          tag: 3.11.1
-        workingDir: "/config"
-        args:
-          - --auth
-          - "none"
-          - --user-data-dir
-          - "/config/.vscode"
-          - --extensions-dir
-          - "/config/.vscode"
-        ingress:
-          enabled: true
-          annotations:
-            kubernetes.io/ingress.class: "nginx"
-          hosts:
-          - host: hass-config.cluster.stromberg.internal
-            paths:
-            - path: /
-              pathType: Prefix
-          tls:
-            - hosts:
-                - hass-config.cluster.stromberg.internal
-        volumeMounts:
-          - name: config
-            mountPath: /config
+    
     resources:
       requests:
         cpu: 100m
