@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       # renovate: registryUrl=https://charts.itstoni.com/
-      chart: home-assistant
+      chart: openhab
       version: 1.0.3
       sourceRef:
         kind: HelmRepository
