@@ -6,3 +6,5 @@ resources:
 - namespaces
 - rook-ceph
 - system-upgrade
+- network
+- monitoring
